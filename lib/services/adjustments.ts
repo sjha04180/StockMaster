@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { ensureUserProfile } from '@/lib/utils/user'
 import type { Adjustment } from '@/lib/types'
 
 export async function getAdjustments() {
@@ -26,7 +27,7 @@ export async function getAdjustment(id: string) {
 
 export async function createAdjustment(adjustment: Omit<Adjustment, 'id' | 'created_at'>) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await ensureUserProfile()
   
   // Get current stock level
   const { data: stockLevel } = await supabase
@@ -42,7 +43,7 @@ export async function createAdjustment(adjustment: Omit<Adjustment, 'id' | 'crea
   // Create adjustment record
   const { data, error } = await supabase
     .from('adjustments')
-    .insert({ ...adjustment, created_by: user?.id })
+    .insert({ ...adjustment, created_by: userId })
     .select()
     .single()
   
@@ -74,7 +75,7 @@ export async function createAdjustment(adjustment: Omit<Adjustment, 'id' | 'crea
       from_location: adjustment.warehouse_id,
       to_location: adjustment.warehouse_id,
       reference_id: data.id,
-      created_by: user?.id
+      created_by: userId
     })
   
   return data as Adjustment

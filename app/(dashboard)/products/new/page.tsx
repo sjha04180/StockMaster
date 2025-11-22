@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { createProduct } from '@/lib/services/products'
 import { getCategories } from '@/lib/services/categories'
 import { getWarehouses } from '@/lib/services/warehouses'
+import { ensureUserProfile } from '@/lib/utils/user'
 import type { Category, Warehouse } from '@/lib/types'
 import { useToast } from '@/hooks/use-toast'
 import { createClient } from '@/lib/supabase/client'
@@ -80,6 +81,8 @@ export default function NewProductPage() {
       // If initial stock is provided, create stock level
       if (initial_stock && warehouse_id) {
         const supabase = createClient()
+        const userId = await ensureUserProfile()
+        
         await supabase.from('stock_levels').insert({
           product_id: product.id,
           warehouse_id,
@@ -87,14 +90,13 @@ export default function NewProductPage() {
         })
 
         // Create initial stock move
-        const { data: { user } } = await supabase.auth.getUser()
         await supabase.from('stock_moves').insert({
           product_id: product.id,
           quantity: initial_stock,
           move_type: 'ADJUSTMENT',
           to_location: warehouse_id,
           reference_id: product.id,
-          created_by: user?.id,
+          created_by: userId,
         })
       }
 

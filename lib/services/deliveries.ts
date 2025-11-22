@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { ensureUserProfile } from '@/lib/utils/user'
 import type { Delivery, DeliveryItem } from '@/lib/types'
 
 export async function getDeliveries() {
@@ -26,11 +27,11 @@ export async function getDelivery(id: string) {
 
 export async function createDelivery(delivery: Omit<Delivery, 'id' | 'created_at' | 'updated_at' | 'items'>) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await ensureUserProfile()
   
   const { data, error } = await supabase
     .from('deliveries')
-    .insert({ ...delivery, created_by: user?.id })
+    .insert({ ...delivery, created_by: userId })
     .select()
     .single()
   
@@ -75,7 +76,7 @@ export async function removeDeliveryItem(id: string) {
 
 export async function validateDelivery(id: string) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await ensureUserProfile()
   
   // Get delivery with items
   const delivery = await getDelivery(id)
@@ -110,7 +111,7 @@ export async function validateDelivery(id: string) {
         move_type: 'DELIVERY',
         from_location: item.warehouse_id,
         reference_id: id,
-        created_by: user?.id
+        created_by: userId
       })
   }
   

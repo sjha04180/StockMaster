@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { ensureUserProfile } from '@/lib/utils/user'
 import type { InternalTransfer, TransferItem } from '@/lib/types'
 
 export async function getTransfers() {
@@ -66,11 +67,11 @@ export async function getTransfer(id: string) {
 
 export async function createTransfer(transfer: Omit<InternalTransfer, 'id' | 'created_at' | 'updated_at' | 'items' | 'from_warehouse' | 'to_warehouse'>) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await ensureUserProfile()
   
   const { data, error } = await supabase
     .from('internal_transfers')
-    .insert({ ...transfer, created_by: user?.id })
+    .insert({ ...transfer, created_by: userId })
     .select()
     .single()
   
@@ -115,7 +116,7 @@ export async function removeTransferItem(id: string) {
 
 export async function validateTransfer(id: string) {
   const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await ensureUserProfile()
   
   // Get transfer with items
   const transfer = await getTransfer(id)
@@ -174,7 +175,7 @@ export async function validateTransfer(id: string) {
         from_location: transfer.from_warehouse_id,
         to_location: transfer.to_warehouse_id,
         reference_id: id,
-        created_by: user?.id
+        created_by: userId
       })
   }
   
