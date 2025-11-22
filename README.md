@@ -1,3 +1,4 @@
+Demo Video Link: https://drive.google.com/file/d/1QCf951j2ff1Iqn4fNCxfHrpkGw4P1t5-/view?usp=sharing
 # StockMaster - Full-Stack Inventory Management System
 
 A modern, production-ready inventory management system built with Next.js 14, Supabase, and TailwindCSS.
