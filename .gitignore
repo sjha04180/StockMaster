@@ -31,6 +31,10 @@ yarn-error.log*
 # vercel
 .vercel
 VERCEL_DEPLOYMENT.md
+DEPLOYMENT_QUICK_START
+ERROR_FIXES
+README_DEPLOYMENT
+SAMPLE_DATA_README
 
 # typescript
 *.tsbuildinfo
